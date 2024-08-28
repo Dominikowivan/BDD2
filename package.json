@@ -1,0 +1,10 @@
+{
+  "name": "bdd2",
+  "version": "0.0.0",
+  "description": "",
+  "main": "NodeScript.js",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "mysql": "^2.18.1"
+  }
+}
