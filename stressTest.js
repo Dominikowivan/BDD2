@@ -16,35 +16,36 @@ const connection_config = {
 };
 
 // Constants
-const TEST_COUNT = 10;
+const TEST_COUNT = 100;
 const MAX_NINJA_ID = 5000000;
-const LOG_INTERVAL_MS = 1000; // Log progress every second
 
-const runQueryTest = async (connection, query, paramsGenerator, testCount) => {
+const runQueryTest = async (connection, query, paramsGenerator, testCount, columnName) => {
+    console.log(`Running test to retrieve ${testCount} registries using column: ${columnName}.`);
+
     const startTime = now();
-    let lastLogTime = startTime;
+    let totalRowsRetrieved = 0;
 
     for (let i = 0; i < testCount; i++) {
-        await executeQuery(connection, query, paramsGenerator());
+        const result = await executeQuery(connection, query, paramsGenerator());
+        totalRowsRetrieved += result.length; // Accumulate the number of rows retrieved
 
-        lastLogTime = logProgressIfNeeded(i, testCount, startTime, lastLogTime);
+        logProgressIfNeeded(i, testCount, startTime, columnName);
     }
 
-    return calculateElapsedTime(startTime).toFixed(2);
+    const elapsedTime = calculateElapsedTime(startTime).toFixed(2);
+    console.log(`Final log for column [${columnName}]: Retrieved a total of ${totalRowsRetrieved} rows in ${formatElapsedTime(elapsedTime)}\n`);
+    return elapsedTime;
 };
 
-const logProgressIfNeeded = (iteration, testCount, startTime, lastLogTime) => {
-    const currentTime = now();
-    if ((currentTime - lastLogTime) > LOG_INTERVAL_MS) {
-        const progress = calculateProgress(iteration, testCount);
-        console.log(`Progress: ${progress}% completed. Elapsed time: ${formatElapsedTime(currentTime - startTime)}`);
-        return currentTime;
+const logProgressIfNeeded = (iteration, testCount, startTime, columnName) => {
+    const progress = calculateProgress(iteration, testCount);
+    if (progress % 10 === 0) { // Log every 10%
+        console.log(`[${columnName}] Progress: ${progress}% completed. Elapsed time: ${formatElapsedTime(now() - startTime)}`);
     }
-    return lastLogTime;
 };
 
 const calculateProgress = (iteration, testCount) => {
-    return ((iteration + 1) / testCount * 100).toFixed(2);
+    return Math.floor(((iteration + 1) / testCount) * 100);
 };
 
 const calculateElapsedTime = (startTime) => {
@@ -58,7 +59,8 @@ const stressTest = async (connection, testCount = TEST_COUNT) => {
         connection,
         "SELECT * FROM Ninja WHERE id = ?",
         () => [getRandomNinjaId()],
-        testCount
+        testCount,
+        "id"
     );
     console.log(`Indexed column (id) test completed in ${formatElapsedTime(indexedTestDuration)}`);
 
@@ -66,7 +68,8 @@ const stressTest = async (connection, testCount = TEST_COUNT) => {
         connection,
         "SELECT * FROM Ninja WHERE name = ?",
         () => [getRandomNinjaName()],
-        testCount
+        testCount,
+        "name"
     );
     console.log(`Non-indexed column (name) test completed in ${formatElapsedTime(nonIndexedTestDuration)}`);
 
@@ -90,7 +93,6 @@ const formatElapsedTime = (milliseconds) => {
         return `${seconds}s ${ms}ms`;
     }
 };
-
 
 // Helper Functions
 const getRandomNinjaId = () => {
