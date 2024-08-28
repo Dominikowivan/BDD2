@@ -25,19 +25,30 @@ const runQueryTest = async (connection, query, paramsGenerator, testCount) => {
     let lastLogTime = startTime;
 
     for (let i = 0; i < testCount; i++) {
-        const params = paramsGenerator();
-        await executeQuery(connection, query, params);
+        await executeQuery(connection, query, paramsGenerator());
 
-        const currentTime = now();
-        if ((currentTime - lastLogTime) > LOG_INTERVAL_MS) {
-            const progress = ((i + 1) / testCount) * 100;
-            console.log(`Progress: ${progress.toFixed(2)}% completed.`);
-            lastLogTime = currentTime;
-        }
+        lastLogTime = logProgressIfNeeded(i, testCount, startTime, lastLogTime);
     }
 
-    const endTime = now();
-    return (endTime - startTime).toFixed(2);
+    return calculateElapsedTime(startTime).toFixed(2);
+};
+
+const logProgressIfNeeded = (iteration, testCount, startTime, lastLogTime) => {
+    const currentTime = now();
+    if ((currentTime - lastLogTime) > LOG_INTERVAL_MS) {
+        const progress = calculateProgress(iteration, testCount);
+        console.log(`Progress: ${progress}% completed. Elapsed time: ${formatElapsedTime(currentTime - startTime)}`);
+        return currentTime;
+    }
+    return lastLogTime;
+};
+
+const calculateProgress = (iteration, testCount) => {
+    return ((iteration + 1) / testCount * 100).toFixed(2);
+};
+
+const calculateElapsedTime = (startTime) => {
+    return now() - startTime;
 };
 
 const stressTest = async (connection, testCount = TEST_COUNT) => {
@@ -49,7 +60,7 @@ const stressTest = async (connection, testCount = TEST_COUNT) => {
         () => [getRandomNinjaId()],
         testCount
     );
-    console.log(`Indexed column (id) test completed in ${indexedTestDuration} ms`);
+    console.log(`Indexed column (id) test completed in ${formatElapsedTime(indexedTestDuration)}`);
 
     const nonIndexedTestDuration = await runQueryTest(
         connection,
@@ -57,10 +68,29 @@ const stressTest = async (connection, testCount = TEST_COUNT) => {
         () => [getRandomNinjaName()],
         testCount
     );
-    console.log(`Non-indexed column (name) test completed in ${nonIndexedTestDuration} ms`);
+    console.log(`Non-indexed column (name) test completed in ${formatElapsedTime(nonIndexedTestDuration)}`);
 
     console.log("Stress test completed.");
 };
+
+const formatElapsedTime = (milliseconds) => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const ms = Math.floor(milliseconds % 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+        const remainingMinutes = minutes % 60;
+        const remainingSeconds = seconds % 60;
+        return `${hours}h ${remainingMinutes}m ${remainingSeconds}s ${ms}ms`;
+    } else if (minutes > 0) {
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s ${ms}ms`;
+    } else {
+        return `${seconds}s ${ms}ms`;
+    }
+};
+
 
 // Helper Functions
 const getRandomNinjaId = () => {
