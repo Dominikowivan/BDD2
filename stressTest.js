@@ -20,7 +20,7 @@ const TEST_COUNT = 100;
 const MAX_NINJA_ID = 5000000;
 
 const runQueryTest = async (connection, query, paramsGenerator, testCount, columnName) => {
-    console.log(`Running test to retrieve ${testCount} registries using column: ${columnName}.`);
+    console.log(`Running test to retrieve ${testCount} registries using column: [${columnName}].`);
 
     const startTime = now();
     let totalRowsRetrieved = 0;
@@ -55,23 +55,21 @@ const calculateElapsedTime = (startTime) => {
 const stressTest = async (connection, testCount = TEST_COUNT) => {
     console.log("Starting stress test...");
 
-    const indexedTestDuration = await runQueryTest(
+    await runQueryTest(
         connection,
         "SELECT * FROM Ninja WHERE id = ?",
         () => [getRandomNinjaId()],
         testCount,
         "id"
     );
-    console.log(`Indexed column (id) test completed in ${formatElapsedTime(indexedTestDuration)}`);
 
-    const nonIndexedTestDuration = await runQueryTest(
+    await runQueryTest(
         connection,
         "SELECT * FROM Ninja WHERE name = ?",
         () => [getRandomNinjaName()],
         testCount,
         "name"
     );
-    console.log(`Non-indexed column (name) test completed in ${formatElapsedTime(nonIndexedTestDuration)}`);
 
     console.log("Stress test completed.");
 };
