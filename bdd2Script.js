@@ -3,6 +3,7 @@ const {
     useConnections,
     insertInBatches,
 } = require("./lib/sqlUtilities");
+const now = require("performance-now");
 
 const connection_config = {
     local: {
