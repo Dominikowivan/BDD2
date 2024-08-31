@@ -27,7 +27,7 @@ const runQueryTest = async (connection, query, paramsGenerator, testCount, colum
 
     for (let i = 0; i < testCount; i++) {
         const result = await executeQuery(connection, query, paramsGenerator());
-        totalRowsRetrieved += result.length; // Accumulate the number of rows retrieved
+        totalRowsRetrieved += result.length;
 
         logProgressIfNeeded(i, testCount, startTime, columnName);
     }
@@ -39,7 +39,7 @@ const runQueryTest = async (connection, query, paramsGenerator, testCount, colum
 
 const logProgressIfNeeded = (iteration, testCount, startTime, columnName) => {
     const progress = calculateProgress(iteration, testCount);
-    if (progress % 10 === 0) { // Log every 10%
+    if (progress % 10 === 0) { 
         console.log(`[${columnName}] Progress: ${progress}% completed. Elapsed time: ${formatElapsedTime(now() - startTime)}`);
     }
 };
