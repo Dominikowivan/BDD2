@@ -34,7 +34,7 @@ const createTables = async (connection) => {
   `);
 
     await executeQuery(connection, `
-    CREATE TABLE IF NOT EXISTS Rank (
+    CREATE TABLE IF NOT EXISTS \`Rank\` (
       id INT AUTO_INCREMENT PRIMARY KEY,
       rank_name ENUM('Apprentice', 'Practicioner', 'Master') NOT NULL,
       ninja_id INT,
@@ -42,12 +42,13 @@ const createTables = async (connection) => {
     );
   `);
 
+
     await executeQuery(connection, `
     CREATE TABLE IF NOT EXISTS Apprentice (
       id INT AUTO_INCREMENT PRIMARY KEY,
       skill_level INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
@@ -56,7 +57,7 @@ const createTables = async (connection) => {
       id INT AUTO_INCREMENT PRIMARY KEY,
       leadership_ability INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
@@ -65,7 +66,7 @@ const createTables = async (connection) => {
       id INT AUTO_INCREMENT PRIMARY KEY,
       strategy_skill INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
@@ -147,7 +148,7 @@ const createRandomRank = (index, apprentices, practicioners, masters) => {
 const batchInsertData = async (connection, ninjas, items, ranks, apprentices, practicioners, masters) => {
     await insertInBatches(connection, "INSERT INTO Ninja (name, maxWeight, life) VALUES ?", ninjas);
     await insertInBatches(connection, "INSERT INTO Item (name, weight, ninja_id) VALUES ?", items);
-    await insertInBatches(connection, "INSERT INTO Rank (rank_name, ninja_id) VALUES ?", ranks);
+    await insertInBatches(connection, "INSERT INTO \`Rank\` (rank_name, ninja_id) VALUES ?", ranks);
     await insertInBatches(connection, "INSERT INTO Apprentice (skill_level, rank_id) VALUES ?", apprentices);
     await insertInBatches(connection, "INSERT INTO Practicioner (leadership_ability, rank_id) VALUES ?", practicioners);
     await insertInBatches(connection, "INSERT INTO Master (strategy_skill, rank_id) VALUES ?", masters);
@@ -162,7 +163,7 @@ const cleanTables = async (connection) => {
     await executeQuery(connection, `TRUNCATE TABLE Apprentice;`);
     await executeQuery(connection, `TRUNCATE TABLE Practicioner;`);
     await executeQuery(connection, `TRUNCATE TABLE Master;`);
-    await executeQuery(connection, `TRUNCATE TABLE Rank;`);
+    await executeQuery(connection, `TRUNCATE TABLE \`Rank\`;`);
     await executeQuery(connection, `TRUNCATE TABLE Item;`);
     await executeQuery(connection, `TRUNCATE TABLE Ninja;`);
 
