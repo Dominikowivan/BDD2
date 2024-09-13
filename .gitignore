@@ -47,3 +47,4 @@ coverage/
 # Comment the line if you're using it.
 # yarn.lock
 # package-lock.json
+venv
