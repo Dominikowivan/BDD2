@@ -6,6 +6,8 @@
   "dependencies": {
     "axios": "^0.25.0",
     "mysql": "^2.18.1",
-    "performance-now": "^2.1.0"
+    "mysql2": "^3.11.0",
+    "performance-now": "^2.1.0",
+    "stats-lite": "^2.2.0"
   }
 }

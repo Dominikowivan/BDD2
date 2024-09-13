@@ -3,7 +3,6 @@ const {
     useConnections,
     insertInBatches,
 } = require("./lib/sqlUtilities");
-const now = require("performance-now");
 
 const connection_config = {
     local: {
@@ -35,38 +34,39 @@ const createTables = async (connection) => {
   `);
 
     await executeQuery(connection, `
-    CREATE TABLE IF NOT EXISTS Rank (
+    CREATE TABLE IF NOT EXISTS \`Rank\` (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      rank_name ENUM('Genin', 'Chunin', 'Jonin') NOT NULL,
+      rank_name ENUM('Apprentice', 'Practicioner', 'Master') NOT NULL,
       ninja_id INT,
       FOREIGN KEY (ninja_id) REFERENCES Ninja(id)
     );
   `);
 
+
     await executeQuery(connection, `
-    CREATE TABLE IF NOT EXISTS Genin (
+    CREATE TABLE IF NOT EXISTS Apprentice (
       id INT AUTO_INCREMENT PRIMARY KEY,
       skill_level INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
     await executeQuery(connection, `
-    CREATE TABLE IF NOT EXISTS Chunin (
+    CREATE TABLE IF NOT EXISTS Practicioner (
       id INT AUTO_INCREMENT PRIMARY KEY,
       leadership_ability INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
     await executeQuery(connection, `
-    CREATE TABLE IF NOT EXISTS Jonin (
+    CREATE TABLE IF NOT EXISTS Master (
       id INT AUTO_INCREMENT PRIMARY KEY,
       strategy_skill INT NOT NULL,
       rank_id INT,
-      FOREIGN KEY (rank_id) REFERENCES Rank(id)
+      FOREIGN KEY (rank_id) REFERENCES \`Rank\`(id)
     );
   `);
 
@@ -77,9 +77,9 @@ const insertRandomData = async (connection, numberOfEntries) => {
     const ninjas = [];
     const items = [];
     const ranks = [];
-    const genins = [];
-    const chunins = [];
-    const jonins = [];
+    const apprentice = [];
+    const practicioners = [];
+    const masters = [];
 
     for (let i = 0; i < numberOfEntries; i++) {
         const ninja = createRandomNinja(i);
@@ -88,11 +88,11 @@ const insertRandomData = async (connection, numberOfEntries) => {
         const ninjaItems = createRandomItems(i, ninja.id);
         items.push(...ninjaItems);
 
-        const rank = createRandomRank(i, genins, chunins, jonins);
+        const rank = createRandomRank(i, apprentice, practicioners, masters);
         ranks.push(rank.data);
     }
 
-    await batchInsertData(connection, ninjas, items, ranks, genins, chunins, jonins);
+    await batchInsertData(connection, ninjas, items, ranks, apprentice, practicioners, masters);
 
     console.log("Random data inserted.");
 };
@@ -123,20 +123,20 @@ const createRandomItems = (ninjaIndex, ninjaId) => {
     return items;
 };
 
-const createRandomRank = (index, genins, chunins, jonins) => {
+const createRandomRank = (index, apprentices, practicioners, masters) => {
     const rankId = index + 1;
-    const ranks = ['Genin', 'Chunin', 'Jonin'];
+    const ranks = ['Apprentice', 'Practicioner', 'Master'];
     const rankName = ranks[Math.floor(Math.random() * ranks.length)];
 
-    if (rankName === 'Genin') {
+    if (rankName === 'Apprentice') {
         const skillLevel = getRandomInt(50, 150);
-        genins.push([skillLevel, rankId]);
-    } else if (rankName === 'Chunin') {
+        apprentices.push([skillLevel, rankId]);
+    } else if (rankName === 'Practicioner') {
         const leadershipAbility = getRandomInt(50, 150);
-        chunins.push([leadershipAbility, rankId]);
-    } else if (rankName === 'Jonin') {
+        practicioners.push([leadershipAbility, rankId]);
+    } else if (rankName === 'Master') {
         const strategySkill = getRandomInt(50, 150);
-        jonins.push([strategySkill, rankId]);
+        masters.push([strategySkill, rankId]);
     }
 
     return {
@@ -145,13 +145,13 @@ const createRandomRank = (index, genins, chunins, jonins) => {
     };
 };
 
-const batchInsertData = async (connection, ninjas, items, ranks, genins, chunins, jonins) => {
+const batchInsertData = async (connection, ninjas, items, ranks, apprentices, practicioners, masters) => {
     await insertInBatches(connection, "INSERT INTO Ninja (name, maxWeight, life) VALUES ?", ninjas);
     await insertInBatches(connection, "INSERT INTO Item (name, weight, ninja_id) VALUES ?", items);
-    await insertInBatches(connection, "INSERT INTO Rank (rank_name, ninja_id) VALUES ?", ranks);
-    await insertInBatches(connection, "INSERT INTO Genin (skill_level, rank_id) VALUES ?", genins);
-    await insertInBatches(connection, "INSERT INTO Chunin (leadership_ability, rank_id) VALUES ?", chunins);
-    await insertInBatches(connection, "INSERT INTO Jonin (strategy_skill, rank_id) VALUES ?", jonins);
+    await insertInBatches(connection, "INSERT INTO \`Rank\` (rank_name, ninja_id) VALUES ?", ranks);
+    await insertInBatches(connection, "INSERT INTO Apprentice (skill_level, rank_id) VALUES ?", apprentices);
+    await insertInBatches(connection, "INSERT INTO Practicioner (leadership_ability, rank_id) VALUES ?", practicioners);
+    await insertInBatches(connection, "INSERT INTO Master (strategy_skill, rank_id) VALUES ?", masters);
 };
 
 const getRandomInt = (min, max) => {
@@ -160,10 +160,10 @@ const getRandomInt = (min, max) => {
 
 const cleanTables = async (connection) => {
     await executeQuery(connection, `SET FOREIGN_KEY_CHECKS = 0;`);
-    await executeQuery(connection, `TRUNCATE TABLE Genin;`);
-    await executeQuery(connection, `TRUNCATE TABLE Chunin;`);
-    await executeQuery(connection, `TRUNCATE TABLE Jonin;`);
-    await executeQuery(connection, `TRUNCATE TABLE Rank;`);
+    await executeQuery(connection, `TRUNCATE TABLE Apprentice;`);
+    await executeQuery(connection, `TRUNCATE TABLE Practicioner;`);
+    await executeQuery(connection, `TRUNCATE TABLE Master;`);
+    await executeQuery(connection, `TRUNCATE TABLE \`Rank\`;`);
     await executeQuery(connection, `TRUNCATE TABLE Item;`);
     await executeQuery(connection, `TRUNCATE TABLE Ninja;`);
 

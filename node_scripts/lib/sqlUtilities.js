@@ -1,4 +1,4 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const util = require("util");
 
 const createConnection = (config) => {
@@ -55,7 +55,7 @@ const executeQueryUntilAffectedRowsAreOverLimit = async (
   }
 };
 
-const insertInBatches = async (connection, query, data, batchSize = 1000) => {
+const insertInBatches = async (connection, query, data, batchSize = 1000, silent = false) => {
   const totalRows = data.length;
   const totalBatches = Math.ceil(totalRows / batchSize);
   console.log(`Inserting ${totalRows} rows in ${totalBatches} batches`);
@@ -66,7 +66,9 @@ const insertInBatches = async (connection, query, data, batchSize = 1000) => {
       await executeQuery(connection, query, [batch]);
 
       const completedBatches = Math.ceil((i + batchSize) / batchSize);
-      logProgress(completedBatches, totalBatches);
+      if(!silent){
+        logProgress(completedBatches, totalBatches);
+      }
     } catch (error) {
       console.error("Error inserting batch:", error);
     }
