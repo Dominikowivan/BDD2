@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalogo>
+    <libro id="1">
+        <titulo>Aprendiendo XML</titulo>
+        <autor>Juan Pérez</autor>
+        <precio>29.99</precio>
+        <fecha_publicacion>2024-01-01</fecha_publicacion>
+    </libro>
+    <libro id="2">
+        <titulo>Introducción a XPath</titulo>
+        <autor>María Gómez</autor>
+        <precio>35.50</precio>
+        <fecha_publicacion>2023-10-10</fecha_publicacion>
+    </libro>
+    <libro id="3">
+        <titulo>XML para Desarrolladores</titulo>
+        <autor>Carlos Ruiz</autor>
+        <precio>40.75</precio>
+        <fecha_publicacion>2023-07-15</fecha_publicacion>
+    </libro>
+    <libro id="4">
+        <titulo>Domina el XPath</titulo>
+        <autor>Ana Martínez</autor>
+        <precio>22.99</precio>
+        <fecha_publicacion>2022-12-01</fecha_publicacion>
+    </libro>
+    <libro id="5">
+        <titulo>Técnicas Avanzadas en XML</titulo>
+        <autor>Pedro López</autor>
+        <precio>50.00</precio>
+        <fecha_publicacion>2023-05-20</fecha_publicacion>
+    </libro>
+</catalogo>
