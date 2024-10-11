@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Define the root element 'catalogo' -->
+    <xs:element name="catalogo">
+        <xs:complexType>
+            <xs:sequence>
+                <!-- Each 'catalogo' contains zero or more 'libro' elements -->
+                <xs:element name="libro" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <!-- 'libro' contains 'titulo', 'autor', 'editorial', 'precio', and 'fecha_publicacion' -->
+                            <xs:element name="titulo" type="xs:string"/>
+                            <xs:element name="autor" type="xs:string"/>
+                            <xs:element name="editorial" type="xs:string"/>
+                            <xs:element name="precio" type="xs:decimal"/>
+                            <xs:element name="fecha_publicacion" type="xs:date"/>
+                        </xs:sequence>
+                        <!-- 'libro' has an attribute 'id' that is of type integer and is required -->
+                        <xs:attribute name="id" type="xs:int" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
